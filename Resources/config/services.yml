@@ -1,0 +1,7 @@
+parameters:
+#    u_test_skeleton.example.class: UTest\SkeletonBundle\Example
+
+services:
+#    u_test_skeleton.example:
+#        class: %u_test_skeleton.example.class%
+#        arguments: [@service_id, "plain_value", %parameter%]
