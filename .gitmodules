@@ -1,0 +1,3 @@
+[submodule "vendor/utest"]
+	path = vendor/utest
+	url = git@github.com:QuentinCerny/UTestSkeleton.git
