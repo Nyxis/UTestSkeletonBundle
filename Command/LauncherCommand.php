@@ -1,7 +1,15 @@
 <?php
 namespace UTest\SkeletonBundle\Command;
 
-use Symfony\Bundle\FrameworkBundle\Command\Command;
+require_once dirname(__FILE__).'/../vendor/utest/lib/utest/Skeleton.class.php';
+
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputDefinition;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\ClassLoader\UniversalClassLoader;
 
 /**
  * command to run the unit test generation
@@ -14,15 +22,45 @@ class LauncherCommand extends Command
     protected function configure()
     {
         $this->setName('utest:generate');
-
-        // $this->addOption('no-git', null, InputOption::VALUE_NONE, 'No git update');
-        // $this->addOption('run-unit', null, InputOption::VALUE_NONE, 'Run unit tests');
-        // $this->addOption('run-selenium', null, InputOption::VALUE_NONE, 'Run selenium tests');
+        $this->addArgument('classes', InputArgument::REQUIRED, 'Class which have test to be generate');
     }
 
+    /**  */
+    protected $output;
+
+    /**
+     *
+     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $output->writeln('<info>YProximitie build</info>');
-        // do as you want
+        $this->output = $output;
+
+        try {
+            \Skeleton::create()
+                ->useTestEngine('php_unit')
+                ->bind('log', array($this, 'sendLog'))
+                ->run($input->getArgument('classes'));
+        }
+        catch(InvalidArgumentException $e) {
+            echo "\n"; $this->logBlock($e->getMessage().' -- abording task.', 'ERROR'); echo "\n";
+
+            return -1;
+        }
+
+        return 0;
+    }
+
+    /**
+     * callback for log event in skeleton classes
+     */
+    public function sendLog($label, $msg, $style = 'info')
+    {
+        $this->output->writeln(sprintf('>>> <%s>%s</%s>%s%s',
+            $style,
+            $label,
+            $style,
+            str_repeat(' ', 10-strlen($label)),
+            $msg
+        ));
     }
 }
